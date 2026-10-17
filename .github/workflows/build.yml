@@ -1,0 +1,89 @@
+name: Build PdfCraft for Catalina
+
+# Compila PdfCraft (storytold/pdfcraft) para macOS 10.15 Catalina en Intel (x86_64).
+# El código upstream no se modifica en un fork: se clona el tag fijado abajo y patch.sh baja
+# el target de despliegue de 11.0 a 10.15 antes de usar el script de empaquetado oficial.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build.yml"
+      - "patch.sh"
+      - "check-binaries.sh"
+
+permissions:
+  contents: read
+
+env:
+  # Versión de pdfcraft a compilar. Para actualizar: cambia el tag y lanza el workflow.
+  PDFCRAFT_REF: v0.8.0
+  # Mismo commit de craft-fonts que usa el release oficial de v0.8.0 (fuentes CJK opcionales).
+  CRAFT_FONTS_REF: 3d9ab3a132ed0eff457e424226a435a901da30d3
+  # Aparece en `pdfcraft --version` y en "Acerca de", para distinguir esta compilación.
+  PDFCRAFT_BUILD_LABEL: catalina
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: 1
+
+jobs:
+  macos-x86_64:
+    name: macOS 10.15 x86_64
+    # Runner Intel: compila nativo para x86_64 y permite ejecutar los binarios para verificarlos.
+    runs-on: macos-15-intel
+    # LTO + codegen-units=1 en 4 núcleos tarda; la primera vez sin caché es la más lenta.
+    timeout-minutes: 180
+    steps:
+      - name: Checkout de este repo (scripts)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: scripts
+
+      - name: Checkout de pdfcraft ${{ env.PDFCRAFT_REF }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/pdfcraft
+          ref: ${{ env.PDFCRAFT_REF }}
+          path: pdfcraft
+
+      - name: Checkout de craft-fonts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: storytold/craft-fonts
+          ref: ${{ env.CRAFT_FONTS_REF }}
+          path: craft-fonts
+
+      - name: Instalar Rust estable
+        uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
+        with:
+          toolchain: stable
+          targets: x86_64-apple-darwin
+
+      - name: Caché de cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: pdfcraft -> target
+          key: catalina-x86_64-${{ env.PDFCRAFT_REF }}
+
+      - name: Parchear el target de despliegue a 10.15
+        run: bash scripts/patch.sh pdfcraft
+
+      - name: Compilar y empaquetar (firma ad-hoc, sin notarizar)
+        working-directory: pdfcraft
+        env:
+          MACOS_SIGN_IDENTITY: "-"
+          CRAFT_FONTS_DIR: ${{ github.workspace }}/craft-fonts
+          CRAFT_FONTS_REQUIRED: "1"
+        run: packaging/macos/package.sh --arch x86_64
+
+      - name: Verificar binarios para 10.15
+        run: bash scripts/check-binaries.sh pdfcraft
+
+      - name: Subir DMG y CLI
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pdfcraft-${{ env.PDFCRAFT_REF }}-catalina-x86_64
+          path: pdfcraft/dist/release/*
+          if-no-files-found: error
+          retention-days: 30

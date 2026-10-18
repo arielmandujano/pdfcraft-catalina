@@ -1,0 +1,15 @@
+[
+  { "id": "photocraft",  "name": "PhotoCraft",  "ref": "v0.9.0",  "fonts": "abb83316d96aa59c1cf64784289e378fe9fa5695" },
+  { "id": "vectorcraft", "name": "VectorCraft", "ref": "v0.12.0", "fonts": "3d9ab3a132ed0eff457e424226a435a901da30d3" },
+  { "id": "filmcraft",   "name": "FilmCraft",   "ref": "v0.8.0",  "fonts": "abb83316d96aa59c1cf64784289e378fe9fa5695" },
+  { "id": "lightcraft",  "name": "LightCraft",  "ref": "v0.8.0",  "fonts": "8dcdacd5153e64560d109541a47d806f26f048c0" },
+  { "id": "pdfcraft",    "name": "PdfCraft",    "ref": "v0.8.0",  "fonts": "3d9ab3a132ed0eff457e424226a435a901da30d3" },
+  { "id": "effectcraft", "name": "EffectCraft", "ref": "v0.10.0", "fonts": "" },
+  { "id": "designcraft", "name": "DesignCraft", "ref": "v0.8.0",  "fonts": "abb83316d96aa59c1cf64784289e378fe9fa5695" },
+  { "id": "wordcraft",   "name": "WordCraft",   "ref": "v0.7.0",  "fonts": "8dcdacd5153e64560d109541a47d806f26f048c0" },
+  { "id": "deckcraft",   "name": "DeckCraft",   "ref": "v0.7.0",  "fonts": "43913056ce82a3fdad0ef69f6b88d1dc922a8104" },
+  { "id": "gridcraft",   "name": "GridCraft",   "ref": "v0.7.0",  "fonts": "abb83316d96aa59c1cf64784289e378fe9fa5695" },
+  { "id": "cadcraft",    "name": "CADCraft",    "ref": "v0.7.0",  "fonts": "3d9ab3a132ed0eff457e424226a435a901da30d3" },
+  { "id": "soundcraft",  "name": "SoundCraft",  "ref": "v0.7.0",  "fonts": "" },
+  { "id": "figcraft",    "name": "FigCraft",    "ref": "v0.6.0",  "fonts": "43913056ce82a3fdad0ef69f6b88d1dc922a8104" }
+]
